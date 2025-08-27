@@ -1,16 +1,15 @@
 # Docker Compose Profiles Strategy:
-# - No profile: All services start by default when running 'docker compose up'
 # - "backend": Starts only backend services (server, mcp, agents) for hybrid development
 # - "frontend": Starts only the frontend UI service  
-# - "full": Starts all services for complete Docker deployment (same as no profile)
+# - "full": Starts all services for complete Docker deployment
 # Use --profile flag to control which services start:
-#   docker compose up                      # All services (default behavior)
-#   docker compose --profile backend up    # Backend only for hybrid dev
-#   docker compose --profile full up       # Everything in Docker (same as default)
+#   docker compose --profile backend up    # Backend only for hybrid dev (or docker-compose)
+#   docker compose --profile full up       # Everything in Docker (or docker-compose)
 
 services:
   # Server Service (FastAPI + Socket.IO + Crawling)
   archon-server:
+    profiles: ["backend", "full"]
     build:
       context: ./python
       dockerfile: Dockerfile.server
@@ -65,6 +64,7 @@ services:
 
   # Lightweight MCP Server Service (HTTP-based)
   archon-mcp:
+    profiles: ["backend", "full"]
     build:
       context: ./python
       dockerfile: Dockerfile.mcp
@@ -109,6 +109,7 @@ services:
 
   # AI Agents Service (ML/Reranking)
   archon-agents:
+    profiles: ["backend", "full"]
     build:
       context: ./python
       dockerfile: Dockerfile.agents
@@ -143,6 +144,7 @@ services:
 
   # Frontend
   archon-frontend:
+    profiles: ["frontend", "full"]
     build: ./archon-ui-main
     container_name: archon-ui
     ports:
@@ -152,7 +154,6 @@ services:
       - VITE_ARCHON_SERVER_PORT=${ARCHON_SERVER_PORT:-8181}
       - ARCHON_SERVER_PORT=${ARCHON_SERVER_PORT:-8181}
       - HOST=${HOST:-localhost}
-      - PROD=${PROD:-false}
     networks:
       - app-network
     healthcheck:
@@ -165,6 +166,13 @@ services:
       - ./archon-ui-main/public:/app/public
     depends_on:
       - archon-server
+
+  agent:
+    build: ./agents/vibe-coder
+    volumes: [ ".:/repo" ]
+    environment:
+      ZERO_GITHUB_TOKEN: ${ZERO_GITHUB_TOKEN}
+    depends_on: [ nats ]
 
 networks:
   app-network:
