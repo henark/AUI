@@ -46,7 +46,7 @@ async def chat_tab():
     # Initialize chat history in session state if not present
     if "messages" not in st.session_state:
         st.session_state.messages = []
-    
+
     # Add a clear conversation button
     if st.button("Clear Conversation"):
         st.session_state.messages = []
@@ -57,7 +57,7 @@ async def chat_tab():
         message_type = message["type"]
         if message_type in ["human", "ai", "system"]:
             with st.chat_message(message_type):
-                st.markdown(message["content"])    
+                st.markdown(message["content"])
 
     # Chat input for the user
     user_input = st.chat_input("What do you want to build today?")
@@ -65,7 +65,7 @@ async def chat_tab():
     if user_input:
         # We append a new request to the conversation explicitly
         st.session_state.messages.append({"type": "human", "content": user_input})
-        
+
         # Display user prompt in the UI
         with st.chat_message("user"):
             st.markdown(user_input)
@@ -74,7 +74,7 @@ async def chat_tab():
         response_content = ""
         with st.chat_message("assistant"):
             message_placeholder = st.empty()  # Placeholder for updating the message
-            
+
             # Add a spinner while loading
             with st.spinner("Archon is thinking..."):
                 # Run the async generator to fetch responses
@@ -82,5 +82,5 @@ async def chat_tab():
                     response_content += chunk
                     # Update the placeholder with the current response content
                     message_placeholder.markdown(response_content)
-        
+
         st.session_state.messages.append({"type": "ai", "content": response_content})

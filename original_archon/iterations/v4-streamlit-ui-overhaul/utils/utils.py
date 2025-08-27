@@ -11,7 +11,7 @@ load_dotenv()
 
 def write_to_log(message: str):
     """Write a message to the logs.txt file in the workbench directory.
-    
+
     Args:
         message: The message to log
     """
@@ -30,10 +30,10 @@ def write_to_log(message: str):
 
 def get_env_var(var_name: str) -> Optional[str]:
     """Get an environment variable from the saved JSON file or from environment variables.
-    
+
     Args:
         var_name: The name of the environment variable to retrieve
-        
+
     Returns:
         The value of the environment variable or None if not found
     """
@@ -41,7 +41,7 @@ def get_env_var(var_name: str) -> Optional[str]:
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(current_dir)
     env_file_path = os.path.join(current_dir, "env_vars.json")
-    
+
     # First try to get from JSON file
     if os.path.exists(env_file_path):
         try:
@@ -51,24 +51,24 @@ def get_env_var(var_name: str) -> Optional[str]:
                     return env_vars[var_name]
         except (json.JSONDecodeError, IOError) as e:
             write_to_log(f"Error reading env_vars.json: {str(e)}")
-    
+
     # If not found in JSON, try to get from environment variables
     return os.environ.get(var_name)
 
 def save_env_var(var_name: str, value: str) -> bool:
     """Save an environment variable to the JSON file.
-    
+
     Args:
         var_name: The name of the environment variable
         value: The value to save
-        
+
     Returns:
         True if successful, False otherwise
     """
     # Path to the JSON file storing environment variables
     current_dir = os.path.dirname(os.path.abspath(__file__))
     env_file_path = os.path.join(current_dir, "env_vars.json")
-    
+
     # Load existing env vars or create empty dict
     env_vars = {}
     if os.path.exists(env_file_path):
@@ -78,10 +78,10 @@ def save_env_var(var_name: str, value: str) -> bool:
         except (json.JSONDecodeError, IOError) as e:
             write_to_log(f"Error reading env_vars.json: {str(e)}")
             # Continue with empty dict if file is corrupted
-    
+
     # Update the variable
     env_vars[var_name] = value
-    
+
     # Save back to file
     try:
         with open(env_file_path, "w") as f:
@@ -93,7 +93,7 @@ def save_env_var(var_name: str, value: str) -> bool:
 
 def log_node_execution(func):
     """Decorator to log the start and end of graph node execution.
-    
+
     Args:
         func: The async function to wrap
     """

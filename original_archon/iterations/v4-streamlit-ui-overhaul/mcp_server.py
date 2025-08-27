@@ -28,7 +28,7 @@ async def create_thread() -> str:
     """Create a new conversation thread for Archon.
     Always call this tool before invoking Archon for the first time in a conversation.
     (if you don't already have a thread ID)
-    
+
     Returns:
         str: A unique thread ID for the conversation
     """
@@ -59,11 +59,11 @@ async def run_agent(thread_id: str, user_input: str) -> str:
     Only use this tool after you have called create_thread in this conversation to get a unique thread ID.
     If you already created a thread ID in this conversation, do not create another one. Reuse the same ID.
     After you receive the code from Archon, always implement it into the codebase unless asked not to.
-    
+
     Args:
         thread_id: The conversation thread ID
         user_input: The user's message to process
-    
+
     Returns:
         str: The agent's response which generally includes the code for the agent
     """
@@ -78,18 +78,18 @@ async def run_agent(thread_id: str, user_input: str) -> str:
             "thread_id": thread_id
         }
     }
-    
+
     try:
         result = await asyncio.to_thread(_make_request, thread_id, user_input, config)
         active_threads[thread_id].append(user_input)
         return result['response']
-        
+
     except Exception as e:
         raise
 
 
 if __name__ == "__main__":
     write_to_log("Starting MCP server")
-    
+
     # Run MCP server
     mcp.run(transport='stdio')

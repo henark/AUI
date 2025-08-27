@@ -16,8 +16,8 @@ def get_model():
     return OpenAIModel(llm, provider=OpenAIProvider(base_url=base_url, api_key=api_key))
 
 server = MCPServerStdio(
-    'npx', 
-    ['-y', '@modelcontextprotocol/server-brave-search', 'stdio'], 
+    'npx',
+    ['-y', '@modelcontextprotocol/server-brave-search', 'stdio'],
     env={"BRAVE_API_KEY": os.getenv("BRAVE_API_KEY")}
 )
 agent = Agent(get_model(), mcp_servers=[server])

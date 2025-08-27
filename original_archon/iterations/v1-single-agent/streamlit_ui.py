@@ -62,7 +62,7 @@ def display_message_part(part):
     # text
     elif part.part_kind == 'text':
         with st.chat_message("assistant"):
-            st.markdown(part.content)          
+            st.markdown(part.content)
 
 
 async def run_agent_with_streaming(user_input: str):
@@ -93,8 +93,8 @@ async def run_agent_with_streaming(user_input: str):
 
         # Now that the stream is finished, we have a final result.
         # Add new messages from this run, excluding user-prompt messages
-        filtered_messages = [msg for msg in result.new_messages() 
-                            if not (hasattr(msg, 'parts') and 
+        filtered_messages = [msg for msg in result.new_messages()
+                            if not (hasattr(msg, 'parts') and
                                     any(part.part_kind == 'user-prompt' for part in msg.parts))]
         st.session_state.messages.extend(filtered_messages)
 
@@ -128,7 +128,7 @@ async def main():
         st.session_state.messages.append(
             ModelRequest(parts=[UserPromptPart(content=user_input)])
         )
-        
+
         # Display user prompt in the UI
         with st.chat_message("user"):
             st.markdown(user_input)

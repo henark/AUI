@@ -53,11 +53,11 @@ tools_refiner_agent = Agent(
 )
 
 
-@tools_refiner_agent.system_prompt  
+@tools_refiner_agent.system_prompt
 def add_file_list(ctx: RunContext[str]) -> str:
     joined_files = "\n".join(ctx.deps.file_list)
     return f"""
-    
+
     Here is the list of all the files that you can pull the contents of with the
     'get_file_content' tool if the example/tool/MCP server is relevant to the
     agent the user is trying to build:
@@ -70,11 +70,11 @@ async def retrieve_relevant_documentation(ctx: RunContext[ToolsRefinerDeps], que
     """
     Retrieve relevant documentation chunks based on the query with RAG.
     Make sure your searches always focus on implementing tools.
-    
+
     Args:
         ctx: The context including the Supabase client and OpenAI client
         query: Your query to retrieve relevant documentation for implementing tools
-        
+
     Returns:
         A formatted string containing the top 4 most relevant documentation chunks
     """
@@ -85,7 +85,7 @@ async def list_documentation_pages(ctx: RunContext[ToolsRefinerDeps]) -> List[st
     """
     Retrieve a list of all available Pydantic AI documentation pages.
     This will give you all pages available, but focus on the ones related to tools.
-    
+
     Returns:
         List[str]: List of unique URLs for all documentation pages
     """
@@ -96,11 +96,11 @@ async def get_page_content(ctx: RunContext[ToolsRefinerDeps], url: str) -> str:
     """
     Retrieve the full content of a specific documentation page by combining all its chunks.
     Only use this tool to get pages related to using tools with Pydantic AI.
-    
+
     Args:
         ctx: The context including the Supabase client
         url: The URL of the page to retrieve
-        
+
     Returns:
         str: The complete page content with all chunks combined in order
     """
@@ -110,11 +110,11 @@ async def get_page_content(ctx: RunContext[ToolsRefinerDeps], url: str) -> str:
 def get_file_content(file_path: str) -> str:
     """
     Retrieves the content of a specific file. Use this to get the contents of an example, tool, config for an MCP server
-    
+
     Args:
         file_path: The path to the file
-        
+
     Returns:
         The raw contents of the file
     """
-    return get_file_content_tool(file_path)    
+    return get_file_content_tool(file_path)

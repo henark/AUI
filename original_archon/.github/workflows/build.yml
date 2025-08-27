@@ -76,21 +76,21 @@ jobs:
           cp run_docker.py run_docker_ci.py
           # Modify the script to just build and verify containers without running them indefinitely
           sed -i 's/"-d",/"-d", "--rm",/g' run_docker_ci.py
-          
+
       - name: Run Docker setup script
         run: |
           chmod +x run_docker_ci.py
           python run_docker_ci.py
-          
+
       - name: Verify containers are built
         run: |
           docker images | grep archon
           docker images | grep archon-mcp
-          
+
       - name: Test container running status
         run: |
           docker ps -a | grep archon-container
-          
+
       - name: Stop containers
         run: |
           docker stop archon-container || true

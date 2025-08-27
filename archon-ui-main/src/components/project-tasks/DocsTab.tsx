@@ -637,9 +637,9 @@ export const DocsTab = ({
       setIsSaving(true);
       
       // Update the document in local state
-      const updatedDocument = { 
-        ...selectedDocument, 
-        updated_at: new Date().toISOString() 
+      const updatedDocument = {
+        ...selectedDocument,
+        updated_at: new Date().toISOString()
       };
       
       setDocuments(prev => prev.map(doc => 

@@ -94,7 +94,7 @@ async def main():
         message_type = message["type"]
         if message_type in ["human", "ai", "system"]:
             with st.chat_message(message_type):
-                st.markdown(message["content"])    
+                st.markdown(message["content"])
 
     # Chat input for the user
     user_input = st.chat_input("What do you want to build today?")
@@ -102,7 +102,7 @@ async def main():
     if user_input:
         # We append a new request to the conversation explicitly
         st.session_state.messages.append({"type": "human", "content": user_input})
-        
+
         # Display user prompt in the UI
         with st.chat_message("user"):
             st.markdown(user_input)
@@ -116,7 +116,7 @@ async def main():
                 response_content += chunk
                 # Update the placeholder with the current response content
                 message_placeholder.markdown(response_content)
-        
+
         st.session_state.messages.append({"type": "ai", "content": response_content})
 
 

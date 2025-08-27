@@ -5,7 +5,7 @@ import inspect
 
 def write_to_log(message: str):
     """Write a message to the logs.txt file in the workbench directory.
-    
+
     Args:
         message: The message to log
     """
@@ -24,7 +24,7 @@ def write_to_log(message: str):
 
 def log_node_execution(func):
     """Decorator to log the start and end of graph node execution.
-    
+
     Args:
         func: The async function to wrap
     """

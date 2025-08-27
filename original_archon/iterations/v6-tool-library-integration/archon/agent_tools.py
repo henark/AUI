@@ -25,7 +25,7 @@ async def retrieve_relevant_documentation_tool(supabase: Client, embedding_clien
     try:
         # Get the embedding for the query
         query_embedding = await get_embedding(user_query, embedding_client)
-        
+
         # Query Supabase for relevant documents
         result = supabase.rpc(
             'match_site_pages',
@@ -35,10 +35,10 @@ async def retrieve_relevant_documentation_tool(supabase: Client, embedding_clien
                 'filter': {'source': 'pydantic_ai_docs'}
             }
         ).execute()
-        
+
         if not result.data:
             return "No relevant documentation found."
-            
+
         # Format the results
         formatted_chunks = []
         for doc in result.data:
@@ -48,20 +48,20 @@ async def retrieve_relevant_documentation_tool(supabase: Client, embedding_clien
 {doc['content']}
 """
             formatted_chunks.append(chunk_text)
-            
+
         # Join all chunks with a separator
         return "\n\n---\n\n".join(formatted_chunks)
-        
+
     except Exception as e:
         print(f"Error retrieving documentation: {e}")
-        return f"Error retrieving documentation: {str(e)}" 
+        return f"Error retrieving documentation: {str(e)}"
 
 async def list_documentation_pages_tool(supabase: Client) -> List[str]:
     """
     Function to retrieve a list of all available Pydantic AI documentation pages.
     This is called by the list_documentation_pages tool and also externally
     to fetch documentation pages for the reasoner LLM.
-    
+
     Returns:
         List[str]: List of unique URLs for all documentation pages
     """
@@ -71,14 +71,14 @@ async def list_documentation_pages_tool(supabase: Client) -> List[str]:
             .select('url') \
             .eq('metadata->>source', 'pydantic_ai_docs') \
             .execute()
-        
+
         if not result.data:
             return []
-            
+
         # Extract unique URLs
         urls = sorted(set(doc['url'] for doc in result.data))
         return urls
-        
+
     except Exception as e:
         print(f"Error retrieving documentation pages: {e}")
         return []
@@ -86,11 +86,11 @@ async def list_documentation_pages_tool(supabase: Client) -> List[str]:
 async def get_page_content_tool(supabase: Client, url: str) -> str:
     """
     Retrieve the full content of a specific documentation page by combining all its chunks.
-    
+
     Args:
         ctx: The context including the Supabase client
         url: The URL of the page to retrieve
-        
+
     Returns:
         str: The complete page content with all chunks combined in order
     """
@@ -102,22 +102,22 @@ async def get_page_content_tool(supabase: Client, url: str) -> str:
             .eq('metadata->>source', 'pydantic_ai_docs') \
             .order('chunk_number') \
             .execute()
-        
+
         if not result.data:
             return f"No content found for URL: {url}"
-            
+
         # Format the page with its title and all chunks
         page_title = result.data[0]['title'].split(' - ')[0]  # Get the main title
         formatted_content = [f"# {page_title}\n"]
-        
+
         # Add each chunk's content
         for chunk in result.data:
             formatted_content.append(chunk['content'])
-            
+
         # Join everything together but limit the characters in case the page is massive (there are a coule big ones)
         # This will be improved later so if the page is too big RAG will be performed on the page itself
         return "\n\n".join(formatted_content)[:20000]
-        
+
     except Exception as e:
         print(f"Error retrieving page content: {e}")
         return f"Error retrieving page content: {str(e)}"
@@ -128,7 +128,7 @@ def get_file_content_tool(file_path: str) -> str:
 
     Args:
         file_path: The path to the file
-        
+
     Returns:
         The raw contents of the file
     """
@@ -138,4 +138,4 @@ def get_file_content_tool(file_path: str) -> str:
         return file_contents
     except Exception as e:
         print(f"Error retrieving file contents: {e}")
-        return f"Error retrieving file contents: {str(e)}"           
+        return f"Error retrieving file contents: {str(e)}"

@@ -51,12 +51,12 @@ pydantic_ai_coder = Agent(
     retries=2
 )
 
-@pydantic_ai_coder.system_prompt  
+@pydantic_ai_coder.system_prompt
 def add_reasoner_output(ctx: RunContext[str]) -> str:
     return f"""
-    
-    Additional thoughts/instructions from the reasoner LLM. 
-    This scope includes documentation pages for you to search as well: 
+
+    Additional thoughts/instructions from the reasoner LLM.
+    This scope includes documentation pages for you to search as well:
     {ctx.deps.reasoner_output}
 
     Recommended starting point from the advisor agent:
@@ -67,11 +67,11 @@ def add_reasoner_output(ctx: RunContext[str]) -> str:
 async def retrieve_relevant_documentation(ctx: RunContext[PydanticAIDeps], user_query: str) -> str:
     """
     Retrieve relevant documentation chunks based on the query with RAG.
-    
+
     Args:
         ctx: The context including the Supabase client and OpenAI client
         user_query: The user's question or query
-        
+
     Returns:
         A formatted string containing the top 4 most relevant documentation chunks
     """
@@ -81,7 +81,7 @@ async def retrieve_relevant_documentation(ctx: RunContext[PydanticAIDeps], user_
 async def list_documentation_pages(ctx: RunContext[PydanticAIDeps]) -> List[str]:
     """
     Retrieve a list of all available Pydantic AI documentation pages.
-    
+
     Returns:
         List[str]: List of unique URLs for all documentation pages
     """
@@ -91,11 +91,11 @@ async def list_documentation_pages(ctx: RunContext[PydanticAIDeps]) -> List[str]
 async def get_page_content(ctx: RunContext[PydanticAIDeps], url: str) -> str:
     """
     Retrieve the full content of a specific documentation page by combining all its chunks.
-    
+
     Args:
         ctx: The context including the Supabase client
         url: The URL of the page to retrieve
-        
+
     Returns:
         str: The complete page content with all chunks combined in order
     """

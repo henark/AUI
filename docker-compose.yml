@@ -167,6 +167,13 @@ services:
     depends_on:
       - archon-server
 
+  agent:
+    build: ./agents/vibe-coder
+    volumes: [ ".:/repo" ]
+    environment:
+      ZERO_GITHUB_TOKEN: ${ZERO_GITHUB_TOKEN}
+    depends_on: [ nats ]
+
 networks:
   app-network:
     driver: bridge

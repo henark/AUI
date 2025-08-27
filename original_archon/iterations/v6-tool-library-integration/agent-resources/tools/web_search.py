@@ -18,7 +18,7 @@ async def search_web(
         'X-Subscription-Token': ctx.deps.brave_api_key,
         'Accept': 'application/json',
     }
-    
+
     with logfire.span('calling Brave search API', query=web_query) as span:
         r = await ctx.deps.client.get(
             'https://api.search.brave.com/res/v1/web/search',
@@ -35,7 +35,7 @@ async def search_web(
         span.set_attribute('response', data)
 
     results = []
-    
+
     # Add web results in a nice formatted way
     web_results = data.get('web', {}).get('results', [])
     for item in web_results[:3]:

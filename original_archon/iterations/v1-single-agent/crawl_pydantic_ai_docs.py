@@ -85,7 +85,7 @@ async def get_title_and_summary(chunk: str, url: str) -> Dict[str, str]:
     For the title: If this seems like the start of a document, extract its title. If it's a middle chunk, derive a descriptive title.
     For the summary: Create a concise summary of the main points in this chunk.
     Keep both title and summary concise but informative."""
-    
+
     try:
         response = await openai_client.chat.completions.create(
             model=os.getenv("LLM_MODEL", "gpt-4o-mini"),
@@ -116,10 +116,10 @@ async def process_chunk(chunk: str, chunk_number: int, url: str) -> ProcessedChu
     """Process a single chunk of text."""
     # Get title and summary
     extracted = await get_title_and_summary(chunk, url)
-    
+
     # Get embedding
     embedding = await get_embedding(chunk)
-    
+
     # Create metadata
     metadata = {
         "source": "pydantic_ai_docs",
@@ -127,7 +127,7 @@ async def process_chunk(chunk: str, chunk_number: int, url: str) -> ProcessedChu
         "crawled_at": datetime.now(timezone.utc).isoformat(),
         "url_path": urlparse(url).path
     }
-    
+
     return ProcessedChunk(
         url=url,
         chunk_number=chunk_number,
@@ -150,7 +150,7 @@ async def insert_chunk(chunk: ProcessedChunk):
             "metadata": chunk.metadata,
             "embedding": chunk.embedding
         }
-        
+
         result = supabase.table("site_pages").insert(data).execute()
         print(f"Inserted chunk {chunk.chunk_number} for {chunk.url}")
         return result
@@ -162,17 +162,17 @@ async def process_and_store_document(url: str, markdown: str):
     """Process a document and store its chunks in parallel."""
     # Split into chunks
     chunks = chunk_text(markdown)
-    
+
     # Process chunks in parallel
     tasks = [
-        process_chunk(chunk, i, url) 
+        process_chunk(chunk, i, url)
         for i, chunk in enumerate(chunks)
     ]
     processed_chunks = await asyncio.gather(*tasks)
-    
+
     # Store chunks in parallel
     insert_tasks = [
-        insert_chunk(chunk) 
+        insert_chunk(chunk)
         for chunk in processed_chunks
     ]
     await asyncio.gather(*insert_tasks)
@@ -193,7 +193,7 @@ async def crawl_parallel(urls: List[str], max_concurrent: int = 5):
     try:
         # Create a semaphore to limit concurrency
         semaphore = asyncio.Semaphore(max_concurrent)
-        
+
         async def process_url(url: str):
             async with semaphore:
                 result = await crawler.arun(
@@ -206,7 +206,7 @@ async def crawl_parallel(urls: List[str], max_concurrent: int = 5):
                     await process_and_store_document(url, result.markdown_v2.raw_markdown)
                 else:
                     print(f"Failed: {url} - Error: {result.error_message}")
-        
+
         # Process all URLs in parallel with limited concurrency
         await asyncio.gather(*[process_url(url) for url in urls])
     finally:
@@ -218,14 +218,14 @@ def get_pydantic_ai_docs_urls() -> List[str]:
     try:
         response = requests.get(sitemap_url)
         response.raise_for_status()
-        
+
         # Parse the XML
         root = ElementTree.fromstring(response.content)
-        
+
         # Extract all URLs from the sitemap
         namespace = {'ns': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
         urls = [loc.text for loc in root.findall('.//ns:loc', namespace)]
-        
+
         return urls
     except Exception as e:
         print(f"Error fetching sitemap: {e}")
@@ -237,7 +237,7 @@ async def main():
     if not urls:
         print("No URLs found to crawl")
         return
-    
+
     print(f"Found {len(urls)} URLs to crawl")
     await crawl_parallel(urls)
 

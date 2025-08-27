@@ -63,11 +63,11 @@ class ProcessedChunk:
 
 class CrawlProgressTracker:
     """Class to track progress of the crawling process."""
-    
-    def __init__(self, 
+
+    def __init__(self,
                  progress_callback: Optional[Callable[[Dict[str, Any]], None]] = None):
         """Initialize the progress tracker.
-        
+
         Args:
             progress_callback: Function to call with progress updates
         """
@@ -81,28 +81,28 @@ class CrawlProgressTracker:
         self.is_running = False
         self.start_time = None
         self.end_time = None
-    
+
     def log(self, message: str):
         """Add a log message and update progress."""
         timestamp = datetime.now().strftime("%H:%M:%S")
         log_entry = f"[{timestamp}] {message}"
         self.logs.append(log_entry)
         print(message)  # Also print to console
-        
+
         # Call the progress callback if provided
         if self.progress_callback:
             self.progress_callback(self.get_status())
-    
+
     def start(self):
         """Mark the crawling process as started."""
         self.is_running = True
         self.start_time = datetime.now()
         self.log("Crawling process started")
-        
+
         # Call the progress callback if provided
         if self.progress_callback:
             self.progress_callback(self.get_status())
-    
+
     def complete(self):
         """Mark the crawling process as completed."""
         self.is_running = False
@@ -110,11 +110,11 @@ class CrawlProgressTracker:
         duration = self.end_time - self.start_time if self.start_time else None
         duration_str = str(duration).split('.')[0] if duration else "unknown"
         self.log(f"Crawling process completed in {duration_str}")
-        
+
         # Call the progress callback if provided
         if self.progress_callback:
             self.progress_callback(self.get_status())
-    
+
     def get_status(self) -> Dict[str, Any]:
         """Get the current status of the crawling process."""
         return {
@@ -129,12 +129,12 @@ class CrawlProgressTracker:
             "start_time": self.start_time,
             "end_time": self.end_time
         }
-    
+
     @property
     def is_completed(self) -> bool:
         """Return True if the crawling process is completed."""
         return not self.is_running and self.end_time is not None
-    
+
     @property
     def is_successful(self) -> bool:
         """Return True if the crawling process completed successfully."""
@@ -192,7 +192,7 @@ async def get_title_and_summary(chunk: str, url: str) -> Dict[str, str]:
     For the title: If this seems like the start of a document, extract its title. If it's a middle chunk, derive a descriptive title.
     For the summary: Create a concise summary of the main points in this chunk.
     Keep both title and summary concise but informative."""
-    
+
     try:
         response = await llm_client.chat.completions.create(
             model=get_env_var("PRIMARY_MODEL") or "gpt-4o-mini",
@@ -223,10 +223,10 @@ async def process_chunk(chunk: str, chunk_number: int, url: str) -> ProcessedChu
     """Process a single chunk of text."""
     # Get title and summary
     extracted = await get_title_and_summary(chunk, url)
-    
+
     # Get embedding
     embedding = await get_embedding(chunk)
-    
+
     # Create metadata
     metadata = {
         "source": "pydantic_ai_docs",
@@ -234,7 +234,7 @@ async def process_chunk(chunk: str, chunk_number: int, url: str) -> ProcessedChu
         "crawled_at": datetime.now(timezone.utc).isoformat(),
         "url_path": urlparse(url).path
     }
-    
+
     return ProcessedChunk(
         url=url,
         chunk_number=chunk_number,
@@ -257,7 +257,7 @@ async def insert_chunk(chunk: ProcessedChunk):
             "metadata": chunk.metadata,
             "embedding": chunk.embedding
         }
-        
+
         result = supabase.table("site_pages").insert(data).execute()
         print(f"Inserted chunk {chunk.chunk_number} for {chunk.url}")
         return result
@@ -269,7 +269,7 @@ async def process_and_store_document(url: str, markdown: str, tracker: Optional[
     """Process a document and store its chunks in parallel."""
     # Split into chunks
     chunks = chunk_text(markdown)
-    
+
     if tracker:
         tracker.log(f"Split document into {len(chunks)} chunks for {url}")
         # Ensure UI gets updated
@@ -277,14 +277,14 @@ async def process_and_store_document(url: str, markdown: str, tracker: Optional[
             tracker.progress_callback(tracker.get_status())
     else:
         print(f"Split document into {len(chunks)} chunks for {url}")
-    
+
     # Process chunks in parallel
     tasks = [
-        process_chunk(chunk, i, url) 
+        process_chunk(chunk, i, url)
         for i, chunk in enumerate(chunks)
     ]
     processed_chunks = await asyncio.gather(*tasks)
-    
+
     if tracker:
         tracker.log(f"Processed {len(processed_chunks)} chunks for {url}")
         # Ensure UI gets updated
@@ -292,14 +292,14 @@ async def process_and_store_document(url: str, markdown: str, tracker: Optional[
             tracker.progress_callback(tracker.get_status())
     else:
         print(f"Processed {len(processed_chunks)} chunks for {url}")
-    
+
     # Store chunks in parallel
     insert_tasks = [
-        insert_chunk(chunk) 
+        insert_chunk(chunk)
         for chunk in processed_chunks
     ]
     await asyncio.gather(*insert_tasks)
-    
+
     if tracker:
         tracker.chunks_stored += len(processed_chunks)
         tracker.log(f"Stored {len(processed_chunks)} chunks for {url}")
@@ -314,17 +314,17 @@ def fetch_url_content(url: str) -> str:
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
     }
-    
+
     try:
         response = requests.get(url, headers=headers, timeout=30)
         response.raise_for_status()
-        
+
         # Convert HTML to Markdown
         markdown = html_converter.handle(response.text)
-        
+
         # Clean up the markdown
         markdown = re.sub(r'\n{3,}', '\n\n', markdown)  # Remove excessive newlines
-        
+
         return markdown
     except Exception as e:
         raise Exception(f"Error fetching {url}: {str(e)}")
@@ -333,7 +333,7 @@ async def crawl_parallel_with_requests(urls: List[str], tracker: Optional[CrawlP
     """Crawl multiple URLs in parallel with a concurrency limit using direct HTTP requests."""
     # Create a semaphore to limit concurrency
     semaphore = asyncio.Semaphore(max_concurrent)
-    
+
     async def process_url(url: str):
         async with semaphore:
             if tracker:
@@ -343,7 +343,7 @@ async def crawl_parallel_with_requests(urls: List[str], tracker: Optional[CrawlP
                     tracker.progress_callback(tracker.get_status())
             else:
                 print(f"Crawling: {url}")
-            
+
             try:
                 # Use a thread pool to run the blocking HTTP request
                 loop = asyncio.get_running_loop()
@@ -352,7 +352,7 @@ async def crawl_parallel_with_requests(urls: List[str], tracker: Optional[CrawlP
                 else:
                     print(f"Fetching content from: {url}")
                 markdown = await loop.run_in_executor(None, fetch_url_content, url)
-                
+
                 if markdown:
                     if tracker:
                         tracker.urls_succeeded += 1
@@ -362,7 +362,7 @@ async def crawl_parallel_with_requests(urls: List[str], tracker: Optional[CrawlP
                             tracker.progress_callback(tracker.get_status())
                     else:
                         print(f"Successfully crawled: {url}")
-                    
+
                     await process_and_store_document(url, markdown, tracker)
                 else:
                     if tracker:
@@ -390,7 +390,7 @@ async def crawl_parallel_with_requests(urls: List[str], tracker: Optional[CrawlP
                         tracker.progress_callback(tracker.get_status())
 
         time.sleep(2)
-    
+
     # Process all URLs in parallel with limited concurrency
     if tracker:
         tracker.log(f"Processing {len(urls)} URLs with concurrency {max_concurrent}")
@@ -407,14 +407,14 @@ def get_pydantic_ai_docs_urls() -> List[str]:
     try:
         response = requests.get(sitemap_url)
         response.raise_for_status()
-        
+
         # Parse the XML
         root = ElementTree.fromstring(response.content)
-        
+
         # Extract all URLs from the sitemap
         namespace = {'ns': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
         urls = [loc.text for loc in root.findall('.//ns:loc', namespace)]
-        
+
         return urls
     except Exception as e:
         print(f"Error fetching sitemap: {e}")
@@ -438,7 +438,7 @@ async def main_with_requests(tracker: Optional[CrawlProgressTracker] = None):
             tracker.start()
         else:
             print("Starting crawling process...")
-        
+
         # Clear existing records first
         if tracker:
             tracker.log("Clearing existing Pydantic AI docs records...")
@@ -449,14 +449,14 @@ async def main_with_requests(tracker: Optional[CrawlProgressTracker] = None):
             tracker.log("Existing records cleared")
         else:
             print("Existing records cleared")
-        
+
         # Get URLs from Pydantic AI docs
         if tracker:
             tracker.log("Fetching URLs from Pydantic AI sitemap...")
         else:
             print("Fetching URLs from Pydantic AI sitemap...")
         urls = get_pydantic_ai_docs_urls()
-        
+
         if not urls:
             if tracker:
                 tracker.log("No URLs found to crawl")
@@ -464,22 +464,22 @@ async def main_with_requests(tracker: Optional[CrawlProgressTracker] = None):
             else:
                 print("No URLs found to crawl")
             return
-        
+
         if tracker:
             tracker.urls_found = len(urls)
             tracker.log(f"Found {len(urls)} URLs to crawl")
         else:
             print(f"Found {len(urls)} URLs to crawl")
-        
+
         # Crawl the URLs using direct HTTP requests
         await crawl_parallel_with_requests(urls, tracker)
-        
+
         # Mark as complete if tracker is provided
         if tracker:
             tracker.complete()
         else:
             print("Crawling process completed")
-            
+
     except Exception as e:
         if tracker:
             tracker.log(f"Error in crawling process: {str(e)}")
@@ -490,7 +490,7 @@ async def main_with_requests(tracker: Optional[CrawlProgressTracker] = None):
 def start_crawl_with_requests(progress_callback: Optional[Callable[[Dict[str, Any]], None]] = None) -> CrawlProgressTracker:
     """Start the crawling process using direct HTTP requests in a separate thread and return the tracker."""
     tracker = CrawlProgressTracker(progress_callback)
-    
+
     def run_crawl():
         try:
             asyncio.run(main_with_requests(tracker))
@@ -498,15 +498,15 @@ def start_crawl_with_requests(progress_callback: Optional[Callable[[Dict[str, An
             print(f"Error in crawl thread: {e}")
             tracker.log(f"Thread error: {str(e)}")
             tracker.complete()
-    
+
     # Start the crawling process in a separate thread
     thread = threading.Thread(target=run_crawl)
     thread.daemon = True
     thread.start()
-    
+
     return tracker
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     # Run the main function directly
     print("Starting crawler...")
     asyncio.run(main_with_requests())

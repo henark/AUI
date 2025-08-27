@@ -13,7 +13,7 @@
 
 > **🔄 IMPORTANT UPDATE (March 31st)**: Archon now includes a library of prebuilt tools, examples, and MCP server integrations. Archon can now incorporate these resources when building new agents, significantly enhancing capabilities and reducing hallucinations. Note that the examples/tool library for Archon is just starting out. Please feel free to contribute examples, MCP servers, and prebuilt tools!
 
-Archon is the world's first **"Agenteer"**, an AI agent designed to autonomously build, refine, and optimize other AI agents. 
+Archon is the world's first **"Agenteer"**, an AI agent designed to autonomously build, refine, and optimize other AI agents.
 
 It serves both as a practical tool for developers and as an educational framework demonstrating the evolution of agentic systems.
 Archon will be developed in iterations, starting with just a simple Pydantic AI agent that can build other Pydantic AI agents,

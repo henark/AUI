@@ -55,11 +55,11 @@ async def retrieve_relevant_documentation(ctx: RunContext[AgentRefinerDeps], que
     """
     Retrieve relevant documentation chunks based on the query with RAG.
     Make sure your searches always focus on implementing the agent itself.
-    
+
     Args:
         ctx: The context including the Supabase client and OpenAI client
         query: Your query to retrieve relevant documentation for implementing agents
-        
+
     Returns:
         A formatted string containing the top 4 most relevant documentation chunks
     """
@@ -70,7 +70,7 @@ async def list_documentation_pages(ctx: RunContext[AgentRefinerDeps]) -> List[st
     """
     Retrieve a list of all available Pydantic AI documentation pages.
     This will give you all pages available, but focus on the ones related to configuring agents and their dependencies.
-    
+
     Returns:
         List[str]: List of unique URLs for all documentation pages
     """
@@ -81,11 +81,11 @@ async def get_page_content(ctx: RunContext[AgentRefinerDeps], url: str) -> str:
     """
     Retrieve the full content of a specific documentation page by combining all its chunks.
     Only use this tool to get pages related to setting up agents with Pydantic AI.
-    
+
     Args:
         ctx: The context including the Supabase client
         url: The URL of the page to retrieve
-        
+
     Returns:
         str: The complete page content with all chunks combined in order
     """

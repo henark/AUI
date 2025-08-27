@@ -37,8 +37,8 @@ For example, if the Brave Search MCP config is:
 Then the way to connect that into the agent is:
 
 server = MCPServerStdio(
-    'npx', 
-    ['-y', '@modelcontextprotocol/server-brave-search', 'stdio'], 
+    'npx',
+    ['-y', '@modelcontextprotocol/server-brave-search', 'stdio'],
     env={"BRAVE_API_KEY": os.getenv("BRAVE_API_KEY")}
 )
 agent = Agent(get_model(), mcp_servers=[server])
@@ -96,7 +96,7 @@ For each MCP server:
 2. Make sure the name of the server and arguments match what is in the config
 3. Make sure the correct environment variables are used
 
-Only change what is necessary to refine the tools and MCP server definitions, don't go overboard 
+Only change what is necessary to refine the tools and MCP server definitions, don't go overboard
 unless of course the tools are broken and need a lot of fixing.
 
 Output the new code for the tools/MCP servers and nothing else.

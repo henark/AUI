@@ -44,11 +44,11 @@ advisor_agent = Agent(
     retries=2
 )
 
-@advisor_agent.system_prompt  
+@advisor_agent.system_prompt
 def add_file_list(ctx: RunContext[str]) -> str:
     joined_files = "\n".join(ctx.deps.file_list)
     return f"""
-    
+
     Here is the list of all the files that you can pull the contents of with the
     'get_file_content' tool if the example/tool/MCP server is relevant to the
     agent the user is trying to build:
@@ -60,10 +60,10 @@ def add_file_list(ctx: RunContext[str]) -> str:
 def get_file_content(file_path: str) -> str:
     """
     Retrieves the content of a specific file. Use this to get the contents of an example, tool, config for an MCP server
-    
+
     Args:
         file_path: The path to the file
-        
+
     Returns:
         The raw contents of the file
     """

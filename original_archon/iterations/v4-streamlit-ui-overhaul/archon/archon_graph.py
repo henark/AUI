@@ -40,22 +40,22 @@ is_openai = "openai" in base_url.lower()
 reasoner_llm_model_name = get_env_var('REASONER_MODEL') or 'o3-mini'
 reasoner_llm_model = AnthropicModel(reasoner_llm_model_name, api_key=api_key) if is_anthropic else OpenAIModel(reasoner_llm_model_name, base_url=base_url, api_key=api_key)
 
-reasoner = Agent(  
+reasoner = Agent(
     reasoner_llm_model,
-    system_prompt='You are an expert at coding AI agents with Pydantic AI and defining the scope for doing so.',  
+    system_prompt='You are an expert at coding AI agents with Pydantic AI and defining the scope for doing so.',
 )
 
 primary_llm_model_name = get_env_var('PRIMARY_MODEL') or 'gpt-4o-mini'
 primary_llm_model = AnthropicModel(primary_llm_model_name, api_key=api_key) if is_anthropic else OpenAIModel(primary_llm_model_name, base_url=base_url, api_key=api_key)
 
-router_agent = Agent(  
+router_agent = Agent(
     primary_llm_model,
-    system_prompt='Your job is to route the user message either to the end of the conversation or to continue coding the AI agent.',  
+    system_prompt='Your job is to route the user message either to the end of the conversation or to continue coding the AI agent.',
 )
 
-end_conversation_agent = Agent(  
+end_conversation_agent = Agent(
     primary_llm_model,
-    system_prompt='Your job is to end a conversation for creating an AI agent by giving instructions for how to execute the agent and they saying a nice goodbye to the user.',  
+    system_prompt='Your job is to end a conversation for creating an AI agent by giving instructions for how to execute the agent and they saying a nice goodbye to the user.',
 )
 
 openai_client=None
@@ -90,7 +90,7 @@ async def define_scope_with_reasoner(state: AgentState):
     # Then, use the reasoner to define the scope
     prompt = f"""
     User AI Agent Request: {state['latest_user_message']}
-    
+
     Create detailed scope document for the AI agent including:
     - Architecture diagram
     - Core components
@@ -115,11 +115,11 @@ async def define_scope_with_reasoner(state: AgentState):
 
     with open(scope_path, "w", encoding="utf-8") as f:
         f.write(scope)
-    
+
     return {"scope": scope}
 
 # Coding Node with Feedback Handling
-async def coder_agent(state: AgentState, writer):    
+async def coder_agent(state: AgentState, writer):
     # Prepare dependencies
     deps = PydanticAIDeps(
         supabase=supabase,
@@ -163,8 +163,8 @@ def get_next_user_message(state: AgentState):
 # Determine if the user is finished creating their AI agent or not
 async def route_user_message(state: AgentState):
     prompt = f"""
-    The user has sent a message: 
-    
+    The user has sent a message:
+
     {state['latest_user_message']}
 
     If the user wants to end the conversation, respond with just the text "finish_conversation".
@@ -180,7 +180,7 @@ async def route_user_message(state: AgentState):
         return "coder_agent"
 
 # End of conversation agent to give instructions for executing the agent
-async def finish_conversation(state: AgentState, writer):    
+async def finish_conversation(state: AgentState, writer):
     # Get the message history into the format for Pydantic AI
     message_history: list[ModelMessage] = []
     for message_row in state['messages']:
@@ -190,8 +190,8 @@ async def finish_conversation(state: AgentState, writer):
     if not is_openai:
         writer = get_stream_writer()
         result = await end_conversation_agent.run(state['latest_user_message'], message_history= message_history)
-        writer(result.data)   
-    else: 
+        writer(result.data)
+    else:
         async with end_conversation_agent.run_stream(
             state['latest_user_message'],
             message_history= message_history
@@ -200,7 +200,7 @@ async def finish_conversation(state: AgentState, writer):
             async for chunk in result.stream_text(delta=True):
                 writer(chunk)
 
-    return {"messages": [result.new_messages_json()]}        
+    return {"messages": [result.new_messages_json()]}
 
 # Build workflow
 builder = StateGraph(AgentState)
