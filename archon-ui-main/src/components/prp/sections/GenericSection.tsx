@@ -42,7 +42,7 @@ export const GenericSection: React.FC<SectionProps> = ({
     // Handle primitives
     if (typeof value === 'string') {
       // Check if the string looks like markdown content
-      const hasMarkdownIndicators = /^#{1,6}\s+.+$|^[-*+]\s+.+$|^\d+\.\s+.+$|```|^\>.+$|\*\*.+\*\*|\*.+\*|`[^`]+`/m.test(value);
+      const hasMarkdownIndicators = /^#{1,6}\s+.+$|^[-*+]\s+.+$|^\d+\.\s+.+$|```|^>.+$|\*\*.+\*\*|\*.+\*|`[^`]+`/m.test(value);
       
       if (hasMarkdownIndicators && value.length > 20) {
         // Render as markdown for content with markdown syntax

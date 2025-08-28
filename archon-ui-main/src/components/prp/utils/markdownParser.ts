@@ -183,7 +183,7 @@ export function isMarkdownContent(content: any): boolean {
     /^[-*+]\s+.+$/m,      // Bullet lists
     /^\d+\.\s+.+$/m,      // Numbered lists
     /```/,                // Code blocks
-    /^\>.+$/m,            // Blockquotes
+    /^>.+$/m,            // Blockquotes
     /\*\*.+\*\*/,         // Bold text
     /\*.+\*/,             // Italic text
   ];

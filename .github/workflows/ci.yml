@@ -39,37 +39,37 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # - name: Run ESLint
-      #   run: npm run lint
-# 
-      # - name: Run TypeScript type check
-      #   run: npx tsc --noEmit
-# 
-      # - name: Run Vitest tests with coverage
-      #   run: npm run test:coverage:run
-# 
-      # - name: Generate test summary
-      #   if: always()
-      #   run: npm run test:coverage:summary
-# 
-      # - name: Upload frontend test results
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: frontend-test-results
-      #     path: |
-      #       archon-ui-main/coverage/test-results.json
-      #       archon-ui-main/public/test-results/
-      #     retention-days: 30
-# 
-      # - name: Upload frontend coverage to Codecov
-      #   if: always()
-      #   uses: codecov/codecov-action@v4
-      #   with:
-      #     files: ./archon-ui-main/public/test-results/coverage/lcov.info
-      #     flags: frontend
-      #     name: frontend-coverage
-      #     token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run TypeScript type check
+        run: npx tsc --noEmit
+
+      - name: Run Vitest tests with coverage
+        run: npm run test:coverage:run
+
+      - name: Generate test summary
+        if: always()
+        run: npm run test:coverage:summary
+
+      - name: Upload frontend test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-test-results
+          path: |
+            archon-ui-main/coverage/test-results.json
+            archon-ui-main/public/test-results/
+          retention-days: 30
+
+      - name: Upload frontend coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./archon-ui-main/public/test-results/coverage/lcov.info
+          flags: frontend
+          name: frontend-coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   # Job 2: Backend Testing (Python/pytest)
   backend-tests:
@@ -97,21 +97,21 @@ jobs:
           uv add pytest-cov
 
       - name: Run linting with ruff (if available)
-        continue-on-error: true
+        continue-on-error: false
         run: |
           if uv run which ruff > /dev/null 2>&1; then
             echo "Running ruff linting..."
-            uv run ruff check src/ tests/ || true
+            uv run ruff check src/ tests/
           else
             echo "Ruff not found, skipping linting"
           fi
 
       - name: Run type checking with mypy (if available)
-        continue-on-error: true
+        continue-on-error: false
         run: |
           if uv run which mypy > /dev/null 2>&1; then
             echo "Running mypy type checking..."
-            uv run mypy src/ || true
+            uv run mypy src/
           else
             echo "MyPy not found, skipping type checking"
           fi
@@ -122,7 +122,7 @@ jobs:
           uv run pytest tests/ --verbose --tb=short \
             --cov=src --cov-report=xml --cov-report=html \
             --cov-report=term-missing \
-            --junitxml=test-results.xml || true
+            --junitxml=test-results.xml
 
       - name: Upload backend test results
         if: always()
