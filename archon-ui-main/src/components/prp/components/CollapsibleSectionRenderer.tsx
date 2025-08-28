@@ -169,7 +169,7 @@ export const CollapsibleSectionRenderer: React.FC<CollapsibleSectionRendererProp
       }
       
       // Check for markdown patterns
-      if (/^#{1,6}\s+.+$|^[-*+]\s+.+$|^\d+\.\s+.+$|```|^\>.+$|\*\*.+\*\*|\*.+\*|`[^`]+`/m.test(data)) {
+      if (/^#{1,6}\s+.+$|^[-*+]\s+.+$|^\d+\.\s+.+$|```|^>.+$|\*\*.+\*\*|\*.+\*|`[^`]+`/m.test(data)) {
         return 'markdown';
       }
     }
